@@ -6,9 +6,16 @@ import * as Yup from 'yup';
 import orphanageView from '../view/orphanages_view'
 
 export default {
+    async delete(req:Request, res:Response){
+        const { id } = req.params;
+        const orphanageRepository = getRepository(Orphanage);
+        const orphanage = await orphanageRepository.delete(id);
+        return orphanage
+    },
+
     async index(req:Request, res:Response){
-        const orpahangesRepository = getRepository(Orphanage);
-        const orphanages = await orpahangesRepository.find({
+        const orphanageRepository = getRepository(Orphanage);
+        const orphanages = await orphanageRepository.find({
             relations: ['images']
         });
 
@@ -17,8 +24,8 @@ export default {
 
     async show(req: Request, res:Response){
         const { id } = req.params;
-        const orpahangesRepository = getRepository(Orphanage);
-        const orphanage = await orpahangesRepository.findOneOrFail(id, {
+        const orphanageRepository = getRepository(Orphanage);
+        const orphanage = await orphanageRepository.findOneOrFail(id, {
             relations: ['images']
         });
 
@@ -51,7 +58,7 @@ export default {
             about,
             instructions,
             opening_hours,
-            open_on_weekends,
+            open_on_weekends: open_on_weekends === "true",
             images
         }
 
@@ -73,7 +80,6 @@ export default {
         await schema.validate(data,{
             abortEarly: false
         });
-
         const orphanage = orphanageRepository.create(data);
 
         await orphanageRepository.save(orphanage)
